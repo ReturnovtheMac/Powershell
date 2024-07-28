@@ -1,0 +1,24 @@
+# Created by LG8558//2024
+# A PowerShell script that clears the cache within the new Teams for Office application
+# Not clearing the cache can lead to intermittent issues with the Teams application
+# Deployed as self-service package to Software Center via Microsoft Endpoint Configuration Manager (MECM)
+
+# Stop Microsoft Teams processes
+Stop-Process -Name ms-teams -Force -ErrorAction SilentlyContinue
+
+# Define the path to the Teams cache directory
+$teamsCachePath = "C:\Users\*\AppData\Local\Packages\MSTeams_8wekyb3d8bbwe\"
+Get-ChildItem $teamsCachePath
+
+# Check if the cache directory exists
+if (Test-Path $teamsCachePath -PathType Container) {
+    # Remove all files and subdirectories from the cache directory
+    Remove-Item -Path $teamsCachePath\* -Recurse -Force
+
+    Write-Host "Microsoft Teams cache cleared successfully."
+} else {
+    Write-Host "Microsoft Teams cache directory not found."
+}
+
+# Restart Microsoft Teams
+Start-Process "C:\Program Files\WindowsApps\MSTeams_23335.232.2637.4844_x64__8wekyb3d8bbwe\ms-teams.exe" -ArgumentList "--processStart ""Teams.exe""" -NoNewWindow
